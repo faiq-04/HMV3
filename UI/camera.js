@@ -23,6 +23,9 @@ const overlay = document.getElementById("overlay");
 const ctxOverlay = overlay.getContext("2d");        
 const resultText = document.getElementById("result-text");
 
+let lastSaveTime = 0;
+const SAVE_INTERVAL = 3000;
+
 // 1. Start Camera
 navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
     .then(stream => {
@@ -99,6 +102,11 @@ function captureAndSend() {
                 ctxOverlay.rect(x, y, w, h);
                 ctxOverlay.stroke();
             }
+            const now = Date.now();
+            if (now - lastSaveTime > SAVE_INTERVAL) {
+                saveToFirebase(data.emotion, data.stress_level);
+                lastSaveTime = now;
+            }
         }
     })
     .catch(err => {
@@ -122,3 +130,4 @@ async function saveToFirebase(emotion, stress_level) {
         console.error("Error adding document: ", e);
     }
 }
+
